@@ -11,6 +11,8 @@
   "dependencies": {
     "elegant-spinner": "^2.0.0",
     "gitlab": "^11.4.1",
-    "log-update": "^3.3.0"
+    "jira-client": "^6.13.0",
+    "log-update": "^3.3.0",
+    "prompt-password": "^1.2.0"
   }
 }

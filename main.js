@@ -1,8 +1,10 @@
-
 const { Gitlab } = require("gitlab");
 const elegantSpinner = require('elegant-spinner');
 const frame = elegantSpinner();
 const logUpdate = require('log-update');
+const JiraApi = require('jira-client');
+const util = require('util')
+var Prompt = require('prompt-password');
 
 function spin() {
   logUpdate(frame());
@@ -13,6 +15,21 @@ function spin() {
   const api = new Gitlab({
     token: '4tnUdiSv-xhazYfMJzxF',
     host: 'https://git.adacta-group.com'
+  });
+
+  const jiraPasswordPrompt = new Prompt({
+    type: 'password',
+    message: 'Enter your JIRA password please',
+    name: 'password'
+  });
+
+  const jira = new JiraApi({
+    protocol: 'https',
+    host: 'jira.adacta-group.com',
+    username: 'vojkod',
+    password: await jiraPasswordPrompt.run(),
+    apiVersion: '2',
+    strictSSL: false
   });
 
   spin();
@@ -57,27 +74,39 @@ function spin() {
 
         let result = {
           commit: c,
+          refName: c.last_pipeline.ref
         };
 
-        if (mergeReqId != null) {
+        if (mergeReqId) {
           mergeRequest = await api.MergeRequests.show(savaImplProject.id, mergeReqId[1]);
+          spin();
           result.mergeRequest = mergeRequest;
+          result.refName = result.mergeRequest.title; 
+
+          let jiraId = /LJADISAVA-\d+/g.exec(result.refName)
+
+          if (jiraId) {
+            const jiraIssue = await jira.findIssue(jiraId);
+            spin();
+            result.jiraIssue = jiraIssue;
+          }
         } 
 
         resolve(result)
       } catch (err) {
+        spin();
         reject(err);
       }
-
-      spin();
     }));
   })
   
   let commitDetails = await Promise.all(commitDetailPromises);
 
   commitDetails.forEach(cd => {
-    let refName = cd.mergeRequest ? cd.mergeRequest.title : cd.commit.last_pipeline.ref; 
-    console.log(cd.commit.created_at, "[", refName, "]" , cd.commit.message)
+    
+    console.log(cd.commit.created_at, "[", cd.refName, "]", 
+      cd.jiraIssue ? `[ ${cd.jiraIssue.fields.summary} ]` : "",
+      cd.commit.message)
   })
   
 })();
