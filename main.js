@@ -23,11 +23,13 @@ function spin() {
     name: 'password'
   });
 
+  const jiraPassword = await jiraPasswordPrompt.run();
+
   const jira = new JiraApi({
     protocol: 'https',
     host: 'jira.adacta-group.com',
     username: 'vojkod',
-    password: await jiraPasswordPrompt.run(),
+    password: jiraPassword,
     apiVersion: '2',
     strictSSL: false
   });
@@ -83,12 +85,14 @@ function spin() {
           result.mergeRequest = mergeRequest;
           result.refName = result.mergeRequest.title; 
 
-          let jiraId = /LJADISAVA-\d+/g.exec(result.refName)
+          if (jiraPassword) {
+            let jiraId = /LJADISAVA-\d+/g.exec(result.refName)
 
-          if (jiraId) {
-            const jiraIssue = await jira.findIssue(jiraId);
-            spin();
-            result.jiraIssue = jiraIssue;
+            if (jiraId) {
+              const jiraIssue = await jira.findIssue(jiraId);
+              spin();
+              result.jiraIssue = jiraIssue;
+            }
           }
         } 
 
