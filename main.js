@@ -27,7 +27,7 @@ function spin() {
 
   let pipelines = await api.Pipelines.all(savaImplProject.id, {
     username: "VojkoD",
-    maxPages: 10
+    maxPages: 2
   })
 
   spin();
@@ -36,7 +36,6 @@ function spin() {
   let distinctCommitIds = new Set();
 
   pipelines.forEach(p => {
-    spin();
     distinctCommitIds.add(p.sha)
   })
 
@@ -48,7 +47,6 @@ function spin() {
   })
 
   let commits = await Promise.all(commitPromises);
-  spin();
 
   let commitDetailPromises = [];
 
@@ -76,7 +74,6 @@ function spin() {
   })
   
   let commitDetails = await Promise.all(commitDetailPromises);
-  spin();
 
   commitDetails.forEach(cd => {
     let refName = cd.mergeRequest ? cd.mergeRequest.title : cd.commit.last_pipeline.ref; 
