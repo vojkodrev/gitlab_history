@@ -89,9 +89,11 @@ function spin() {
             let jiraId = /LJADISAVA-\d+/g.exec(result.refName)
 
             if (jiraId) {
-              const jiraIssue = await jira.findIssue(jiraId);
-              spin();
-              result.jiraIssue = jiraIssue;
+              try {
+                const jiraIssue = await jira.findIssue(jiraId);
+                spin();
+                result.jiraIssue = jiraIssue;
+              } catch (err) {}
             }
           }
         } 
