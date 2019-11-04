@@ -90,7 +90,7 @@ function spin() {
 
             if (jiraId) {
               try {
-                const jiraIssue = await jira.findIssue(jiraId);                
+                const jiraIssue = await jira.findIssue(jiraId[0]);                
                 result.jiraIssue = jiraIssue;
               } catch (err) {}
 
