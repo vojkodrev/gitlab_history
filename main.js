@@ -68,6 +68,27 @@ function spin() {
   let commits = await Promise.all(commitPromises);
 
   let commitDetailPromises = [];
+  
+  function getJiraIssue(name) {
+    return new Promise(async (resolve, reject) => {
+      if (jiraPassword) {
+        let jiraId = /LJADISAVA-\d+/g.exec(name)
+  
+        if (jiraId) {
+          try {
+            const jiraIssue = await jira.findIssue(jiraId[0]);                
+            spin();
+            resolve(jiraIssue);
+          } catch (err) {
+            spin();
+            reject(err);
+          }
+        }
+      } else {
+        reject("No jira password");
+      }
+    })
+  }
 
   commits.forEach(c => {
     commitDetailPromises.push(new Promise(async (resolve, reject) => {
@@ -84,20 +105,12 @@ function spin() {
           spin();
           result.mergeRequest = mergeRequest;
           result.refName = result.mergeRequest.title; 
-
-          if (jiraPassword) {
-            let jiraId = /LJADISAVA-\d+/g.exec(result.refName)
-
-            if (jiraId) {
-              try {
-                const jiraIssue = await jira.findIssue(jiraId[0]);                
-                result.jiraIssue = jiraIssue;
-              } catch (err) {}
-
-              spin();
-            }
-          }
         } 
+
+        try {
+          result.jiraIssue = await getJiraIssue(result.refName);
+        } catch (err) { }
+
 
         resolve(result)
       } catch (err) {
