@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "elegant-spinner": "^2.0.0",
-    "gitlab": "^11.4.1",
+    "gitlab": "^11.5.1",
     "jira-client": "^6.13.0",
     "log-update": "^3.3.0",
     "prompt-password": "^1.2.0"
