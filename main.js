@@ -123,10 +123,18 @@ function spin() {
   let commitDetails = await Promise.all(commitDetailPromises);
 
   commitDetails.forEach(cd => {
-    
+  
+    if (parseInt(cd.commit.created_at.substring(8, 10)) % 2 == 0) {
+      process.stdout.write("\x1b[33m");
+    } else {
+      process.stdout.write("\x1b[0m");
+    }
+
     console.log(cd.commit.created_at, "[", cd.refName, "]", 
       cd.jiraIssue ? `[ ${cd.jiraIssue.fields.summary} ]` : "",
       cd.commit.message)
   })
+
+  process.stdout.write("\x1b[0m");
   
 })();
